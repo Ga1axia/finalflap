@@ -82,6 +82,7 @@ function setCookie(cname,cvalue,exdays)
 function showSplash()
 {
    currentstate = states.SplashScreen;
+   updateGameStateInAPI(currentstate);
 
    //set the defaults (again)
    velocity = 0;
@@ -111,6 +112,7 @@ function showSplash()
 function startGame()
 {
    currentstate = states.GameScreen;
+   updateGameStateInAPI(currentstate);
 
    //fade out the splash
    $("#splash").stop();
@@ -349,6 +351,7 @@ function playerDead()
 
    //it's time to change states. as of now we're considered ScoreScreen to disable left click/flying
    currentstate = states.ScoreScreen;
+   updateGameStateInAPI(currentstate);
 
    //destroy our gameloops
    clearInterval(loopGameloop);
@@ -527,6 +530,30 @@ function startCommandPolling() {
    }, 100);
 }
 
+function updateGameStateInAPI(newState) {
+   if (!isConnected) return;
+   
+   fetch('/api/connect', {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+         type: 'updateGameState',
+         gameState: newState
+      })
+   })
+   .then(response => response.json())
+   .then(data => {
+      if (data.success) {
+         console.log('Game state updated in API:', newState);
+      }
+   })
+   .catch(error => {
+      console.error('Error updating game state in API:', error);
+   });
+}
+
 function checkForMobileCommands() {
    if (!isConnected) {
       console.log('Not connected to API, skipping command check');
@@ -560,6 +587,10 @@ function checkForMobileCommands() {
             } else if (command.type === 'flap' && currentstate === states.SplashScreen) {
                console.log('Mobile flap command received on splash screen, starting game');
                startGame();
+            } else if (command.type === 'flap' && currentstate === states.ScoreScreen) {
+               console.log('Mobile flap command received on score screen, restarting game');
+               // Simulate clicking the replay button
+               $("#replay").click();
             } else {
                console.log('Mobile flap command received but not in game state:', currentstate);
             }

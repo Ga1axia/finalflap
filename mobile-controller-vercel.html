@@ -260,6 +260,33 @@
         .title {
             animation: float 3s ease-in-out infinite;
         }
+
+        /* Button state styles */
+        .flap-button.start-state {
+            background: linear-gradient(145deg, #4caf50, #388e3c);
+            border-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .flap-button.game-state {
+            background: linear-gradient(145deg, #ffeb3b, #ffc107);
+            border-color: #ff8f00;
+            color: #d84315;
+        }
+
+        .flap-button.restart-state {
+            background: linear-gradient(145deg, #ff5722, #d84315);
+            border-color: #bf360c;
+            color: #ffffff;
+        }
+
+        .flap-button.start-state::before {
+            background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+        }
+
+        .flap-button.restart-state::before {
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+        }
     </style>
 </head>
 <body>
@@ -272,10 +299,10 @@
         </div>
         
         <button id="flapButton" class="flap-button" disabled>
-            FLAP!
+            <span id="buttonText">FLAP!</span>
         </button>
         
-        <div class="tap-hint">Tap the button to make the bird flap!</div>
+        <div class="tap-hint" id="tapHint">Tap the button to make the bird flap!</div>
         
         <div class="instructions">
             <h3>How to use:</h3>
@@ -300,6 +327,7 @@
         window.addEventListener('load', function() {
             connectToServer();
             setupTouchHandling();
+            startGameStatePolling();
         });
 
         function setupTouchHandling() {
@@ -486,6 +514,69 @@
 
         function updateStatusInfo(message) {
             document.getElementById('statusInfo').textContent = message;
+        }
+
+        function startGameStatePolling() {
+            // Poll for game state every 2 seconds to update button text
+            setInterval(() => {
+                if (isConnected) {
+                    checkGameState();
+                }
+            }, 2000);
+        }
+
+        function checkGameState() {
+            // Send a request to get game state information
+            fetch('/api/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: 'getGameState'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.gameState !== undefined) {
+                    updateButtonForGameState(data.gameState);
+                }
+            })
+            .catch(error => {
+                // Silently fail - this is just for UI updates
+                console.log('Game state check failed:', error);
+            });
+        }
+
+        function updateButtonForGameState(gameState) {
+            const buttonText = document.getElementById('buttonText');
+            const tapHint = document.getElementById('tapHint');
+            const flapButton = document.getElementById('flapButton');
+            
+            // Remove any existing state classes
+            flapButton.classList.remove('start-state', 'game-state', 'restart-state');
+            
+            switch(gameState) {
+                case 0: // SplashScreen
+                    buttonText.textContent = 'START!';
+                    tapHint.textContent = 'Tap to start the game!';
+                    flapButton.classList.add('start-state');
+                    break;
+                case 1: // GameScreen
+                    buttonText.textContent = 'FLAP!';
+                    tapHint.textContent = 'Tap to make the bird flap!';
+                    flapButton.classList.add('game-state');
+                    break;
+                case 2: // ScoreScreen
+                    buttonText.textContent = 'RESTART!';
+                    tapHint.textContent = 'Tap to restart the game!';
+                    flapButton.classList.add('restart-state');
+                    break;
+                default:
+                    buttonText.textContent = 'FLAP!';
+                    tapHint.textContent = 'Tap the button to control the game!';
+                    flapButton.classList.add('game-state');
+            }
         }
 
         // Handle page visibility change

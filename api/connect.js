@@ -4,6 +4,7 @@
 // In-memory storage for commands (in production, use Redis or database)
 let gameCommands = [];
 let connectedClients = new Set();
+let currentGameState = 0; // 0 = SplashScreen, 1 = GameScreen, 2 = ScoreScreen
 
 export default function handler(req, res) {
     // Set CORS headers
@@ -96,6 +97,32 @@ export default function handler(req, res) {
                 commands: commands,
                 timestamp: new Date().toISOString()
             });
+        } else if (type === 'getGameState') {
+            // Mobile client requesting current game state
+            res.status(200).json({ 
+                success: true, 
+                gameState: currentGameState,
+                timestamp: new Date().toISOString()
+            });
+        } else if (type === 'updateGameState') {
+            // Game client updating its state
+            const { gameState } = req.body;
+            if (gameState !== undefined && gameState >= 0 && gameState <= 2) {
+                currentGameState = gameState;
+                console.log('Game state updated to:', gameState);
+                res.status(200).json({ 
+                    success: true, 
+                    message: 'Game state updated',
+                    gameState: currentGameState,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                res.status(400).json({ 
+                    success: false, 
+                    message: 'Invalid game state value',
+                    receivedState: gameState
+                });
+            }
         } else {
             res.status(400).json({ 
                 success: false, 
