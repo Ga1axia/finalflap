@@ -365,8 +365,9 @@ function playerDead()
    var movey = Math.max(0, floor - playerbottom);
    $("#player").transition({ y: movey + 'px', rotate: 90}, 1000, 'easeInOutCubic');
 
-   // Don't change state to ScoreScreen immediately - wait until score screen is actually shown
-   // This prevents mobile controller from showing "RESTART" too early
+   //it's time to change states. as of now we're considered ScoreScreen to disable left click/flying
+   currentstate = states.ScoreScreen;
+   updateGameStateInAPI(currentstate);
 
    //destroy our gameloops
    clearInterval(loopGameloop);
@@ -394,10 +395,6 @@ function playerDead()
 function showScore()
 {
    console.log('showScore() called - game ended, score screen should be visible');
-   
-   // Now change state to ScoreScreen since score screen is being shown
-   currentstate = states.ScoreScreen;
-   updateGameStateInAPI(currentstate);
    
    //unhide us
    $("#scoreboard").css("display", "block");
@@ -546,12 +543,12 @@ function initializeAPIConnection() {
 }
 
 function startCommandPolling() {
-   // Poll for mobile commands every 100ms for responsive gameplay
+   // Poll for mobile commands every 8ms (120fps) for ultra-responsive gameplay
    setInterval(() => {
       if (isConnected) {
          checkForMobileCommands();
       }
-   }, 100);
+   }, 8);
 }
 
 function updateGameStateInAPI(newState) {

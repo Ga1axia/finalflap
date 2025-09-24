@@ -349,8 +349,8 @@ function playerDead()
    var movey = Math.max(0, floor - playerbottom);
    $("#player").transition({ y: movey + 'px', rotate: 90}, 1000, 'easeInOutCubic');
 
-   // Don't change state to ScoreScreen immediately - wait until score screen is actually shown
-   // This prevents mobile controller from showing "RESTART" too early
+   //it's time to change states. as of now we're considered ScoreScreen to disable left click/flying
+   currentstate = states.ScoreScreen;
 
    //destroy our gameloops
    clearInterval(loopGameloop);
@@ -377,9 +377,6 @@ function playerDead()
 
 function showScore()
 {
-   // Now change state to ScoreScreen since score screen is being shown
-   currentstate = states.ScoreScreen;
-   
    //unhide us
    $("#scoreboard").css("display", "block");
 
