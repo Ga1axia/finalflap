@@ -528,14 +528,33 @@ function startCommandPolling() {
 }
 
 function checkForMobileCommands() {
-   // In a real implementation, you'd check a message queue or database
-   // For now, we'll simulate by checking if there are any pending commands
-   // This is a simplified version - in production you'd use a proper message system
+   if (!isConnected) return;
    
-   // Check if there's a mobile command available
-   // This would typically involve checking a shared state or message queue
-   // For demo purposes, we'll skip the actual polling and rely on the existing
-   // click/touch handlers for now
+   // Poll the API for mobile commands
+   fetch('/api/connect', {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+         type: 'getCommands'
+      })
+   })
+   .then(response => response.json())
+   .then(data => {
+      if (data.success && data.commands && data.commands.length > 0) {
+         // Process each command
+         data.commands.forEach(command => {
+            if (command.type === 'flap' && currentstate === states.GameScreen) {
+               console.log('Mobile flap command received:', command);
+               playerJump();
+            }
+         });
+      }
+   })
+   .catch(error => {
+      console.error('Error checking for mobile commands:', error);
+   });
 }
 
 // Override the existing screenClick function to also send commands to mobile

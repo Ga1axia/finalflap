@@ -1,6 +1,10 @@
 // Vercel API route for WebSocket-like connections
 // This simulates WebSocket behavior using Server-Sent Events and HTTP requests
 
+// In-memory storage for commands (in production, use Redis or database)
+let gameCommands = [];
+let connectedClients = new Set();
+
 export default function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,6 +25,10 @@ export default function handler(req, res) {
             'Access-Control-Allow-Origin': '*',
         });
         
+        // Add client to connected clients
+        const clientId = Date.now() + Math.random();
+        connectedClients.add(clientId);
+        
         // Send initial connection message
         res.write(`data: ${JSON.stringify({ 
             type: 'connected', 
@@ -39,6 +47,7 @@ export default function handler(req, res) {
         // Clean up on close
         req.on('close', () => {
             clearInterval(keepAlive);
+            connectedClients.delete(clientId);
         });
         
         return;
@@ -49,11 +58,21 @@ export default function handler(req, res) {
         const { message, type, clientType } = req.body;
         
         if (type === 'flap') {
-            // In a real implementation, you'd broadcast this to all connected clients
-            // For now, we'll just acknowledge receipt
+            // Store the flap command for the game to pick up
+            gameCommands.push({
+                type: 'flap',
+                timestamp: new Date().toISOString(),
+                id: Date.now() + Math.random()
+            });
+            
+            // Keep only the last 10 commands to prevent memory buildup
+            if (gameCommands.length > 10) {
+                gameCommands = gameCommands.slice(-10);
+            }
+            
             res.status(200).json({ 
                 success: true, 
-                message: 'Flap command received and processed',
+                message: 'Flap command received and queued',
                 timestamp: new Date().toISOString()
             });
         } else if (type === 'register') {
@@ -61,6 +80,15 @@ export default function handler(req, res) {
                 success: true, 
                 message: `${clientType} client registered successfully`,
                 clientType: clientType,
+                timestamp: new Date().toISOString()
+            });
+        } else if (type === 'getCommands') {
+            // Game client requesting commands
+            const commands = [...gameCommands];
+            gameCommands = []; // Clear commands after sending
+            res.status(200).json({ 
+                success: true, 
+                commands: commands,
                 timestamp: new Date().toISOString()
             });
         } else {
