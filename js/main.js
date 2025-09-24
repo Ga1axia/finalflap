@@ -107,11 +107,6 @@ function showSplash()
 
    //fade in the splash
    $("#splash").transition({ opacity: 1 }, 800, 'ease');
-   
-   // Show QR code after splash fades in
-   setTimeout(() => {
-      $("#qr-code-section").transition({ opacity: 1 }, 500, 'ease');
-   }, 1000);
 }
 
 function startGame()
@@ -120,7 +115,6 @@ function startGame()
 
    //fade out the splash
    $("#splash").stop();
-   $("#qr-code-section").transition({ opacity: 0 }, 200, 'ease');
    $("#splash").transition({ opacity: 0 }, 200, 'ease');
 
    //update the big score

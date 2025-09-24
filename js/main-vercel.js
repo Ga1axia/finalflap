@@ -114,12 +114,7 @@ function showSplash()
    $(".animated").css('-webkit-animation-play-state', 'running');
 
    //fade in the splash
-   $("#splash").transition({ opacity: 1 }, 800, 'ease');
-   
-   // Show QR code after splash fades in
-   setTimeout(() => {
-      $("#qr-code-section").transition({ opacity: 1 }, 500, 'ease');
-   }, 1000);
+   $("#splash").transition({ opacity: 1 }, 2000, 'ease');
 }
 
 function startGame()
@@ -129,8 +124,7 @@ function startGame()
 
    //fade out the splash
    $("#splash").stop();
-   $("#qr-code-section").transition({ opacity: 0 }, 200, 'ease');
-   $("#splash").transition({ opacity: 0 }, 200, 'ease');
+   $("#splash").transition({ opacity: 0 }, 500, 'ease');
 
    //ensure scoreboard is hidden
    $("#scoreboard").css("display", "none");
@@ -151,7 +145,7 @@ function startGame()
    console.log("Difficulty mode:", difficultyText, "(pipe height:", pipeheight + ")");
 
    //start up our loops
-   var updaterate = 1000.0 / 120.0 ; //120 times a second for ultra-smooth gameplay
+   var updaterate = 1000.0 / 60.0 ; //60 times a second
    loopGameloop = setInterval(gameloop, updaterate);
    loopPipeloop = setInterval(updatePipes, 1400);
 
@@ -284,7 +278,6 @@ else
 
 function screenClick()
 {
-   // Immediate local input handling - no API delay
    if(currentstate == states.GameScreen)
    {
       playerJump();
@@ -293,32 +286,14 @@ function screenClick()
    {
       startGame();
    }
-   
-   // Also send to API for mobile clients (non-blocking)
-   if (isConnected) {
-      fetch('/api/connect', {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({
-            type: 'flap',
-            message: 'flap'
-         })
-      })
-      .catch(error => {
-         console.error('Error sending command to API:', error);
-      });
-   }
 }
 
 function playerJump()
 {
    velocity = jump;
-   //play jump sound (non-blocking)
+   //play jump sound
    soundJump.stop();
-   // Use setTimeout to prevent sound from blocking input processing
-   setTimeout(() => soundJump.play(), 0);
+   soundJump.play();
 }
 
 function setBigScore(erase)
@@ -388,7 +363,7 @@ function playerDead()
    var playerbottom = $("#player").position().top + $("#player").width(); //we use width because he'll be rotated 90 deg
    var floor = flyArea;
    var movey = Math.max(0, floor - playerbottom);
-   $("#player").transition({ y: movey + 'px', rotate: 90}, 500, 'easeInOutCubic');
+   $("#player").transition({ y: movey + 'px', rotate: 90}, 1000, 'easeInOutCubic');
 
    //it's time to change states. as of now we're considered ScoreScreen to disable left click/flying
    currentstate = states.ScoreScreen;
@@ -448,11 +423,11 @@ function showScore()
    //show the scoreboard
    $("#scoreboard").css({ y: '40px', opacity: 0 }); //move it down so we can slide it up
    $("#replay").css({ y: '40px', opacity: 0 });
-   $("#scoreboard").transition({ y: '0px', opacity: 1}, 300, 'ease', function() {
+   $("#scoreboard").transition({ y: '0px', opacity: 1}, 600, 'ease', function() {
       //When the animation is done, animate in the replay button and SWOOSH!
       soundSwoosh.stop();
       soundSwoosh.play();
-      $("#replay").transition({ y: '0px', opacity: 1}, 300, 'ease');
+      $("#replay").transition({ y: '0px', opacity: 1}, 600, 'ease');
 
       //also animate in the MEDAL! WOO!
       if(wonmedal)
@@ -568,12 +543,12 @@ function initializeAPIConnection() {
 }
 
 function startCommandPolling() {
-   // Poll for mobile commands every 16ms (60fps) for ultra-responsive gameplay
+   // Poll for mobile commands every 100ms for responsive gameplay
    setInterval(() => {
       if (isConnected) {
          checkForMobileCommands();
       }
-   }, 16);
+   }, 100);
 }
 
 function updateGameStateInAPI(newState) {
@@ -649,4 +624,26 @@ function checkForMobileCommands() {
    });
 }
 
-// screenClick function already handles both local input and API communication above
+// Override the existing screenClick function to also send commands to mobile
+const originalScreenClick = screenClick;
+function screenClick() {
+   // Call original function
+   originalScreenClick();
+   
+   // Also send command to API for mobile clients
+   if (isConnected) {
+      fetch('/api/connect', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({
+            type: 'flap',
+            message: 'flap'
+         })
+      })
+      .catch(error => {
+         console.error('Error sending command to API:', error);
+      });
+   }
+}
