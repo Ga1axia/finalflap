@@ -543,12 +543,12 @@ function initializeAPIConnection() {
 }
 
 function startCommandPolling() {
-   // Poll for mobile commands every 8ms (120fps) for ultra-responsive gameplay
+   // Poll for mobile commands every 100ms for responsive gameplay
    setInterval(() => {
       if (isConnected) {
          checkForMobileCommands();
       }
-   }, 8);
+   }, 100);
 }
 
 function updateGameStateInAPI(newState) {

@@ -327,7 +327,7 @@
         window.addEventListener('load', function() {
             connectToServer();
             setupTouchHandling();
-            // No more polling - we'll receive push notifications via SSE
+            startGameStatePolling();
         });
 
         function setupTouchHandling() {
@@ -444,7 +444,8 @@
                 updateStatusInfo('Connected and ready to play!');
                 console.log('SSE connection established');
                 
-                // Game state will be received via push notifications
+                // Check game state immediately when connected
+                checkGameState();
             };
             
             eventSource.onmessage = function(event) {
@@ -455,16 +456,6 @@
                     if (data.type === 'ping') {
                         // Respond to ping to keep connection alive
                         console.log('Received ping, connection is alive');
-                    } else if (data.type === 'connected') {
-                        // Handle initial connection with game state
-                        console.log('Connected to game server');
-                        if (data.gameState !== undefined) {
-                            updateButtonForGameState(data.gameState);
-                        }
-                    } else if (data.type === 'gameStateUpdate') {
-                        // Handle push notification for game state changes
-                        console.log('Received game state update:', data.gameState);
-                        updateButtonForGameState(data.gameState);
                     }
                 } catch (error) {
                     console.error('Error parsing SSE message:', error);
@@ -540,7 +531,42 @@
             document.getElementById('statusInfo').textContent = message;
         }
 
-        // Polling removed - now using push notifications via SSE for instant updates
+        function startGameStatePolling() {
+            // Check game state immediately when connected
+            if (isConnected) {
+                checkGameState();
+            }
+            
+            // Poll for game state every 500ms for more responsive updates
+            setInterval(() => {
+                if (isConnected) {
+                    checkGameState();
+                }
+            }, 500);
+        }
+
+        function checkGameState() {
+            // Send a request to get game state information
+            fetch('/api/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: 'getGameState'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.gameState !== undefined) {
+                    updateButtonForGameState(data.gameState);
+                }
+            })
+            .catch(error => {
+                // Silently fail - this is just for UI updates
+                console.log('Game state check failed:', error);
+            });
+        }
 
         function updateButtonForGameState(gameState) {
             const buttonText = document.getElementById('buttonText');
