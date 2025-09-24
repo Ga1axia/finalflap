@@ -190,6 +190,37 @@ Screen - Game
    z-index: 100;
 }
 
+#qr-code-section
+{
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   text-align: center;
+   z-index: 200;
+   opacity: 0;
+   transition: opacity 0.5s ease;
+}
+
+#qr-code
+{
+   width: 150px;
+   height: 150px;
+   border-radius: 15px;
+   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+   margin-bottom: 15px;
+}
+
+#qr-text
+{
+   color: #fff;
+   font-size: 16px;
+   font-weight: bold;
+   text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+   margin: 0;
+   font-family: monospace;
+}
+
 #bigscore img
 {
    display: inline-block;
@@ -206,42 +237,6 @@ Screen - Game
    height: 170px;
    background-image: url('../assets/splash.png');
    background-repeat: no-repeat;
-}
-
-#qr-code-section
-{
-   position: absolute;
-   top: 180px;
-   left: 50%;
-   transform: translateX(-50%);
-   text-align: center;
-   z-index: 10;
-   opacity: 0;
-}
-
-#qr-code-container
-{
-   background: white;
-   padding: 10px;
-   border-radius: 10px;
-   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-   margin-bottom: 10px;
-   display: inline-block;
-}
-
-#qr-code-image
-{
-   width: 120px;
-   height: 120px;
-   display: block;
-}
-
-#qr-code-text
-{
-   color: white;
-   font-size: 12px;
-   text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-   font-weight: bold;
 }
 
 #scoreboard

@@ -13,11 +13,11 @@ var websocket = null;
 var websocketConnected = false;
 var websocketServerUrl = 'ws://localhost:8080';
 
-var gravity = 0.15;
+var gravity = 0.25;
 var velocity = 0;
 var position = 180;
 var rotation = 0;
-var jump = -3.8;
+var jump = -4.6;
 var flyArea = $("#flyarea").height();
 
 var score = 0;
@@ -193,10 +193,7 @@ function gameloop() {
    //have they tried to escape through the ceiling? :o
    var ceiling = $("#ceiling");
    if(boxtop <= (ceiling.offset().top + ceiling.height()))
-   {
-      playerDead();
-      return;
-   }
+      position = 0;
 
    //we can't go any further without a pipe
    if(pipes[0] == null)
