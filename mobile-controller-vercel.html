@@ -299,6 +299,7 @@
 
         function sendFlapCommand() {
             if (isConnected) {
+                console.log('Sending flap command...');
                 fetch('/api/connect', {
                     method: 'POST',
                     headers: {
@@ -309,10 +310,14 @@
                         message: 'flap'
                     })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Response data:', data);
                     if (data.success) {
-                        console.log('Flap command sent:', data.message);
+                        console.log('Flap command sent successfully:', data.message);
                         
                         // Visual feedback
                         const button = document.getElementById('flapButton');
@@ -322,10 +327,12 @@
                         }, 100);
                     } else {
                         console.error('Failed to send flap command:', data.message);
+                        alert('Failed to send flap command: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error sending flap command:', error);
+                    alert('Error sending flap command: ' + error.message);
                 });
             } else {
                 alert('Not connected to game server');

@@ -528,7 +528,10 @@ function startCommandPolling() {
 }
 
 function checkForMobileCommands() {
-   if (!isConnected) return;
+   if (!isConnected) {
+      console.log('Not connected to API, skipping command check');
+      return;
+   }
    
    // Poll the API for mobile commands
    fetch('/api/connect', {
@@ -540,14 +543,25 @@ function checkForMobileCommands() {
          type: 'getCommands'
       })
    })
-   .then(response => response.json())
+   .then(response => {
+      console.log('Command check response status:', response.status);
+      return response.json();
+   })
    .then(data => {
+      console.log('Command check response data:', data);
       if (data.success && data.commands && data.commands.length > 0) {
+         console.log('Received', data.commands.length, 'mobile commands');
          // Process each command
          data.commands.forEach(command => {
+            console.log('Processing command:', command);
             if (command.type === 'flap' && currentstate === states.GameScreen) {
-               console.log('Mobile flap command received:', command);
+               console.log('Mobile flap command received and executing playerJump()');
                playerJump();
+            } else if (command.type === 'flap' && currentstate === states.SplashScreen) {
+               console.log('Mobile flap command received on splash screen, starting game');
+               startGame();
+            } else {
+               console.log('Mobile flap command received but not in game state:', currentstate);
             }
          });
       }

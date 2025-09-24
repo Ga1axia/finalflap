@@ -59,11 +59,15 @@ export default function handler(req, res) {
         
         if (type === 'flap') {
             // Store the flap command for the game to pick up
-            gameCommands.push({
+            const command = {
                 type: 'flap',
                 timestamp: new Date().toISOString(),
                 id: Date.now() + Math.random()
-            });
+            };
+            gameCommands.push(command);
+            
+            console.log('Flap command received and stored:', command);
+            console.log('Total commands in queue:', gameCommands.length);
             
             // Keep only the last 10 commands to prevent memory buildup
             if (gameCommands.length > 10) {
@@ -85,6 +89,7 @@ export default function handler(req, res) {
         } else if (type === 'getCommands') {
             // Game client requesting commands
             const commands = [...gameCommands];
+            console.log('Game client requesting commands, returning:', commands.length, 'commands');
             gameCommands = []; // Clear commands after sending
             res.status(200).json({ 
                 success: true, 
