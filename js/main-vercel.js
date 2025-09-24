@@ -203,6 +203,7 @@ function gameloop() {
    //did we hit the ground?
    if(box.bottom >= $("#land").offset().top)
    {
+      console.log('Bird hit the ground - calling playerDead()');
       playerDead();
       return;
    }
@@ -210,7 +211,11 @@ function gameloop() {
    //have they tried to escape through the ceiling? :o
    var ceiling = $("#ceiling");
    if(boxtop <= (ceiling.offset().top + ceiling.height()))
-      position = 0;
+   {
+      console.log('Bird hit the ceiling - calling playerDead()');
+      playerDead();
+      return;
+   }
 
    //we can't go any further without a pipe
    if(pipes[0] == null)
@@ -246,6 +251,7 @@ function gameloop() {
       else
       {
          //no! we touched the pipe
+         console.log('Bird hit a pipe - calling playerDead()');
          playerDead();
          return;
       }
@@ -380,6 +386,7 @@ function setMedal()
 
 function playerDead()
 {
+   console.log('playerDead() called - game should end now');
    //stop animating everything!
    $(".animated").css('animation-play-state', 'paused');
    $(".animated").css('-webkit-animation-play-state', 'paused');
