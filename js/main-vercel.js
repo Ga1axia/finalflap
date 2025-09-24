@@ -22,7 +22,7 @@ var flyArea = $("#flyarea").height();
 var score = 0;
 var highscore = 0;
 
-var pipeheight = 90;
+var pipeheight = 200; // Easy mode by default
 var pipewidth = 52;
 var pipes = new Array();
 
@@ -45,7 +45,9 @@ $(document).ready(function() {
    if(window.location.search == "?debug")
       debugmode = true;
    if(window.location.search == "?easy")
-      pipeheight = 200;
+      pipeheight = 250; // Even easier mode
+   if(window.location.search == "?hard")
+      pipeheight = 90; // Hard mode
 
    //get the highscore
    var savedscore = getCookie("highscore");
@@ -91,7 +93,7 @@ function showSplash()
    score = 0;
 
    //update the player in preparation for the next game
-   $("#player").css({ y: 0, x: 0 });
+   $("#player").css({ y: 0, x: 0, rotate: 0 });
    updatePlayer($("#player"));
 
    soundSwoosh.stop();
@@ -100,6 +102,12 @@ function showSplash()
    //clear out all the pipes if there are any
    $(".pipe").remove();
    pipes = new Array();
+
+   //hide the scoreboard if it's visible
+   $("#scoreboard").css("display", "none");
+   $("#scoreboard").css({ y: '0px', opacity: 1 }); // Reset position
+   $("#replay").css({ y: '0px', opacity: 1 }); // Reset position
+   replayclickable = false;
 
    //make everything animated again
    $(".animated").css('animation-play-state', 'running');
@@ -118,6 +126,10 @@ function startGame()
    $("#splash").stop();
    $("#splash").transition({ opacity: 0 }, 500, 'ease');
 
+   //ensure scoreboard is hidden
+   $("#scoreboard").css("display", "none");
+   replayclickable = false;
+
    //update the big score
    setBigScore();
 
@@ -127,6 +139,10 @@ function startGame()
       //show the bounding boxes
       $(".boundingbox").show();
    }
+
+   //show difficulty indicator
+   var difficultyText = pipeheight >= 200 ? "EASY" : pipeheight >= 150 ? "NORMAL" : "HARD";
+   console.log("Difficulty mode:", difficultyText, "(pipe height:", pipeheight + ")");
 
    //start up our loops
    var updaterate = 1000.0 / 60.0 ; //60 times a second
