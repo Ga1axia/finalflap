@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Mobile Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4ec0ca, #2c3e50);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .controller-container {
+            text-align: center;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .flap-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        .flap-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+
+        .flap-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .flap-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .connection-status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .connected {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .disconnected {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .connecting {
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+            color: #f1c40f;
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .server-input {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .server-input input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        .server-input button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .server-input button:hover {
+            background: #2980b9;
+        }
+
+        .tap-hint {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .preset-servers {
+            margin: 15px 0;
+        }
+
+        .preset-servers h4 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .status-info {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .flap-button {
+                width: 150px;
+                height: 150px;
+                font-size: 1.5rem;
+            }
+
+            .preset-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controller-container">
+        <h1 class="title">🐦 Flappy Bird</h1>
+        <p class="subtitle">Mobile Controller</p>
+        
+        <div class="server-input">
+            <input type="text" id="serverUrl" placeholder="Enter WebSocket server URL" value="">
+            <button onclick="connectToServer()">Connect</button>
+        </div>
+
+        <div class="preset-servers">
+            <h4>Quick Connect:</h4>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="setServerUrl('ws://localhost:8080')">Local Server</button>
+                <button class="preset-btn" onclick="setServerUrl('wss://your-domain.com:8080')">Your Server</button>
+                <button class="preset-btn" onclick="setServerUrl('ws://your-ip:8080')">Custom IP</button>
+            </div>
+        </div>
+        
+        <div id="connectionStatus" class="connection-status disconnected">
+            Disconnected
+        </div>
+        
+        <button id="flapButton" class="flap-button" onclick="sendFlapCommand()" disabled>
+            FLAP!
+        </button>
+        
+        <div class="tap-hint">Tap the button to make the bird flap!</div>
+        
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <p>1. Make sure your Flappy Bird game is running with WebSocket support</p>
+            <p>2. Enter the correct WebSocket server URL above</p>
+            <p>3. Click "Connect" to establish connection</p>
+            <p>4. Tap "FLAP!" to control the bird in the game</p>
+            <div class="status-info" id="statusInfo">Ready to connect</div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let isConnected = false;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        let reconnectTimeout = null;
+
+        function setServerUrl(url) {
+            document.getElementById('serverUrl').value = url;
+        }
+
+        function connectToServer() {
+            const serverUrl = document.getElementById('serverUrl').value.trim();
+            
+            if (!serverUrl) {
+                alert('Please enter a WebSocket server URL');
+                return;
+            }
+
+            // Validate WebSocket URL
+            if (!serverUrl.startsWith('ws://') && !serverUrl.startsWith('wss://')) {
+                alert('Please enter a valid WebSocket URL (starting with ws:// or wss://)');
+                return;
+            }
+
+            // Close existing connection if any
+            if (websocket) {
+                websocket.close();
+            }
+
+            // Clear any existing reconnect timeout
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+                reconnectTimeout = null;
+            }
+
+            updateConnectionStatus('connecting', 'Connecting...');
+            updateStatusInfo(`Connecting to ${serverUrl}...`);
+            
+            try {
+                websocket = new WebSocket(serverUrl);
+                
+                websocket.onopen = function(event) {
+                    isConnected = true;
+                    reconnectAttempts = 0;
+                    updateConnectionStatus('connected', 'Connected to game!');
+                    document.getElementById('flapButton').disabled = false;
+                    updateStatusInfo(`Connected to ${serverUrl}`);
+                    console.log('Connected to WebSocket server');
+                    // Register as mobile client
+                    websocket.send('mobile-client');
+                };
+                
+                websocket.onmessage = function(event) {
+                    console.log('Received message:', event.data);
+                    if (event.data === 'mobile-connected') {
+                        updateStatusInfo('Mobile controller registered successfully');
+                    }
+                };
+                
+                websocket.onclose = function(event) {
+                    isConnected = false;
+                    document.getElementById('flapButton').disabled = true;
+                    updateConnectionStatus('disconnected', 'Disconnected from game');
+                    updateStatusInfo(`Connection closed (Code: ${event.code})`);
+                    console.log('WebSocket connection closed');
+                    
+                    // Attempt to reconnect if it wasn't a manual close
+                    if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
+                        reconnectAttempts++;
+                        updateStatusInfo(`Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`);
+                        reconnectTimeout = setTimeout(connectToServer, 3000 * reconnectAttempts);
+                    } else if (reconnectAttempts >= maxReconnectAttempts) {
+                        updateStatusInfo('Max reconnection attempts reached. Please check server.');
+                    }
+                };
+                
+                websocket.onerror = function(error) {
+                    isConnected = false;
+                    updateConnectionStatus('disconnected', 'Connection failed');
+                    document.getElementById('flapButton').disabled = true;
+                    updateStatusInfo('Connection error occurred');
+                    console.error('WebSocket error:', error);
+                };
+                
+            } catch (error) {
+                updateConnectionStatus('disconnected', 'Connection failed');
+                updateStatusInfo('Invalid WebSocket URL');
+                console.error('Error creating WebSocket:', error);
+                alert('Invalid WebSocket URL. Please check the format.');
+            }
+        }
+
+        function sendFlapCommand() {
+            if (websocket && isConnected) {
+                websocket.send('flap');
+                console.log('Sent flap command');
+                
+                // Visual feedback
+                const button = document.getElementById('flapButton');
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 100);
+            } else {
+                alert('Not connected to game server');
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = `connection-status ${status}`;
+            statusElement.textContent = message;
+        }
+
+        function updateStatusInfo(message) {
+            document.getElementById('statusInfo').textContent = message;
+        }
+
+        // Auto-connect on page load if server URL is provided
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const serverUrl = urlParams.get('server');
+            if (serverUrl) {
+                document.getElementById('serverUrl').value = serverUrl;
+                connectToServer();
+            } else {
+                // Try to detect if we're on a mobile device and suggest local server
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    updateStatusInfo('Mobile device detected. Enter your WebSocket server URL to connect.');
+                }
+            }
+        });
+
+        // Handle page visibility change to maintain connection
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Page is hidden, could pause connection
+            } else {
+                // Page is visible again, ensure connection is still active
+                if (websocket && websocket.readyState === WebSocket.CLOSED) {
+                    updateConnectionStatus('disconnected', 'Connection lost');
+                    document.getElementById('flapButton').disabled = true;
+                    updateStatusInfo('Connection lost. Click Connect to reconnect.');
+                }
+            }
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', function() {
+            if (websocket) {
+                websocket.close(1000, 'Page unloading');
+            }
+        });
+    </script>
+</body>
+</html>

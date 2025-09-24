@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Mobile Controller - QR Code</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4ec0ca, #2c3e50);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+        }
+
+        .instructions {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+        }
+
+        .url-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .status.connected {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .status.disconnected {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .game-link {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .game-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .game-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .qr-code {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🐦 Flappy Bird</h1>
+        <p class="subtitle">Mobile Controller QR Code</p>
+        
+        <div class="qr-container">
+            <div id="qrcode" class="qr-code"></div>
+        </div>
+        
+        <div class="url-display" id="urlDisplay">
+            Loading...
+        </div>
+        
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <p>1. Scan the QR code with your mobile device</p>
+            <p>2. The mobile controller will open automatically</p>
+            <p>3. Make sure the game is running on your computer</p>
+            <p>4. Tap "FLAP!" to control the bird!</p>
+        </div>
+        
+        <div class="buttons">
+            <a href="/mobile" class="btn btn-primary" target="_blank">Open Mobile Controller</a>
+            <a href="/" class="btn btn-secondary">Play Game</a>
+        </div>
+        
+        <div class="game-link">
+            <p>🎮 <a href="/" target="_blank">Click here to open the game</a> in a new tab</p>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <script>
+        // Get current URL and create mobile controller URL
+        const currentUrl = window.location.origin;
+        const mobileControllerUrl = `${currentUrl}/mobile`;
+        
+        // Display the URL
+        document.getElementById('urlDisplay').textContent = mobileControllerUrl;
+        
+        // Generate QR Code
+        const qrContainer = document.getElementById('qrcode');
+        
+        QRCode.toCanvas(qrContainer, mobileControllerUrl, {
+            width: 200,
+            height: 200,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            },
+            margin: 2,
+            errorCorrectionLevel: 'M'
+        }, function (error) {
+            if (error) {
+                console.error('QR Code generation error:', error);
+                qrContainer.innerHTML = '<p style="color: red;">QR Code generation failed</p>';
+            } else {
+                console.log('QR Code generated successfully');
+            }
+        });
+        
+        // Add click to copy URL functionality
+        document.getElementById('urlDisplay').addEventListener('click', function() {
+            navigator.clipboard.writeText(mobileControllerUrl).then(function() {
+                // Show feedback
+                const originalText = this.textContent;
+                this.textContent = 'Copied to clipboard!';
+                this.style.background = 'rgba(46, 204, 113, 0.3)';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.background = 'rgba(255, 255, 255, 0.2)';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Could not copy to clipboard. Please copy manually: ' + mobileControllerUrl);
+            });
+        });
+        
+        // Add hover effect to URL display
+        document.getElementById('urlDisplay').style.cursor = 'pointer';
+        document.getElementById('urlDisplay').title = 'Click to copy URL';
+        
+        // Check if we're on mobile and show appropriate message
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            document.querySelector('.instructions').innerHTML = `
+                <h3>You're on mobile!</h3>
+                <p>You can use this device as the controller directly</p>
+                <p>Or scan the QR code with another device</p>
+                <p>Make sure the game is running on your computer</p>
+            `;
+        }
+    </script>
+</body>
+</html>

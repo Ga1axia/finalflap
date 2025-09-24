@@ -1,0 +1,29 @@
+{
+  "name": "flappy-bird-mobile-controller",
+  "version": "1.0.0",
+  "description": "Mobile controller for Flappy Bird game with WebSocket support",
+  "main": "websocket-server.js",
+  "scripts": {
+    "start": "node websocket-server.js",
+    "dev": "nodemon websocket-server.js",
+    "deploy": "node deploy.js",
+    "deploy:local": "node deploy.js local",
+    "deploy:railway": "node deploy.js railway",
+    "deploy:heroku": "node deploy.js heroku",
+    "deploy:github": "node deploy.js github"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "flappy-bird",
+    "mobile-controller",
+    "websocket",
+    "game"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

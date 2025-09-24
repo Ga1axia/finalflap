@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/connect.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/connect",
+      "dest": "/api/connect.js"
+    },
+    {
+      "src": "/mobile",
+      "dest": "/mobile-controller-vercel.html"
+    },
+    {
+      "src": "/qr",
+      "dest": "/qr-code.html"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/connect.js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
