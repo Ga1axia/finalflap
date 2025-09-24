@@ -16,13 +16,11 @@
         }
 
         body {
-            font-family: monospace;
-            background: linear-gradient(180deg, #4ec0ca 0%, #4ec0ca 80%, #ded895 80%, #ded895 100%);
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(180deg, #70c5ce 0%, #70c5ce 40%, #dee68a 40%, #dee68a 100%);
             height: 100vh;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
@@ -40,82 +38,52 @@
             right: 0;
             bottom: 0;
             background-image: 
-                url('assets/sky.png'),
-                url('assets/land.png');
-            background-repeat: repeat-x;
-            background-position: 
-                0px 100%,
-                0px 0px;
-            background-size: 
-                275px 100%,
-                335px 100%;
-            animation: 
-                animSky 7s linear infinite,
-                animLand 2.5s linear infinite;
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%);
             pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 40% 60%, rgba(255,255,255,0.08) 0%, transparent 50%);
-            pointer-events: none;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes animSky {
-            0% { background-position: 0px 100%, 0px 0px; }
-            100% { background-position: -275px 100%, -335px 0px; }
-        }
-
-        @keyframes animLand {
-            0% { background-position: 0px 100%, 0px 0px; }
-            100% { background-position: -275px 100%, -335px 0px; }
         }
 
         .controller-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
             z-index: 1;
         }
 
         .title {
-            display: none;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .subtitle {
-            display: none;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
         }
 
         .flap-button {
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            background: #ffeb3b;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffeb3b, #ffc107);
+            border: 4px solid #ff8f00;
             color: #d84315;
-            font-family: monospace;
-            font-size: 6rem;
+            font-size: 2.2rem;
             font-weight: 900;
             cursor: pointer;
-            transition: all 0.1s ease;
+            box-shadow: 
+                0 8px 20px rgba(0,0,0,0.3),
+                inset 0 2px 4px rgba(255,255,255,0.3),
+                inset 0 -2px 4px rgba(0,0,0,0.2);
+            transition: all 0.15s ease;
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
-            margin: 0;
-            padding: 0;
+            margin-bottom: 30px;
             touch-action: manipulation;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -123,87 +91,131 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            text-shadow: 3px 3px 0px #000000;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-            border: 8px solid #000000;
-            box-shadow: 
-                inset 0 0 0 4px #ffffff,
-                inset 0 0 0 8px #000000,
-                0 0 0 4px #ffffff,
-                0 0 0 8px #000000;
+        }
+
+        .flap-button::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            right: 10%;
+            height: 30%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .flap-button:hover {
-            background: #ffc107;
-            transform: scale(0.98);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 15px 30px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.4),
+                inset 0 -2px 4px rgba(0,0,0,0.3);
         }
 
         .flap-button:active {
-            background: #ff8f00;
-            transform: scale(0.95);
+            transform: translateY(-1px) scale(0.95);
+            box-shadow: 
+                0 6px 15px rgba(0,0,0,0.3),
+                inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .flap-button:disabled {
-            background: #cccccc;
-            color: #666666;
+            background: linear-gradient(145deg, #bdbdbd, #9e9e9e);
+            border-color: #757575;
+            color: #616161;
             cursor: not-allowed;
             transform: none;
-            text-shadow: 2px 2px 0px #000000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .connection-status {
-            display: none;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .connected {
-            display: none;
+            background: linear-gradient(145deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9));
+            border: 3px solid #4caf50;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .disconnected {
-            display: none;
+            background: linear-gradient(145deg, rgba(244, 67, 54, 0.9), rgba(198, 40, 40, 0.9));
+            border: 3px solid #f44336;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
         }
 
         .connecting {
-            display: none;
+            background: linear-gradient(145deg, rgba(255, 193, 7, 0.9), rgba(255, 152, 0, 0.9));
+            border: 3px solid #ffc107;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
         }
 
         .instructions {
-            display: none;
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .instructions h3 {
-            display: none;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
 
         .instructions p {
-            display: none;
+            margin-bottom: 10px;
+            line-height: 1.5;
         }
 
         .tap-hint {
-            display: none;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
         }
 
         .status-info {
-            display: none;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
         }
 
         .game-link {
-            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .game-link a {
-            display: none;
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
 
         .game-link a:hover {
-            display: none;
+            color: #ffc107;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            transform: scale(1.05);
         }
 
         @media (max-width: 480px) {
@@ -251,27 +263,58 @@
 
         /* Button state styles */
         .flap-button.start-state {
-            filter: none;
+            background: linear-gradient(145deg, #4caf50, #388e3c);
+            border-color: #2e7d32;
+            color: #ffffff;
         }
 
         .flap-button.game-state {
-            filter: none;
+            background: linear-gradient(145deg, #ffeb3b, #ffc107);
+            border-color: #ff8f00;
+            color: #d84315;
         }
 
         .flap-button.restart-state {
-            filter: none;
+            background: linear-gradient(145deg, #ff5722, #d84315);
+            border-color: #bf360c;
+            color: #ffffff;
         }
 
-        .bird-icon {
-            display: none;
+        .flap-button.start-state::before {
+            background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+        }
+
+        .flap-button.restart-state::before {
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
         }
     </style>
 </head>
 <body>
     <div class="controller-container">
+        <h1 class="title">🐦 Flappy Bird</h1>
+        <p class="subtitle">Mobile Controller</p>
+        
+        <div id="connectionStatus" class="connection-status disconnected">
+            Disconnected
+        </div>
+        
         <button id="flapButton" class="flap-button" disabled>
-            FLAP
+            <span id="buttonText">FLAP!</span>
         </button>
+        
+        <div class="tap-hint" id="tapHint">Tap the button to make the bird flap!</div>
+        
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <p>1. Make sure the Flappy Bird game is open on your computer</p>
+            <p>2. This controller will automatically connect</p>
+            <p>3. Tap "FLAP!" to control the bird in the game</p>
+            <div class="status-info" id="statusInfo">Connecting to server...</div>
+        </div>
+
+        <div class="game-link">
+            <p>🎮 <a href="/" target="_blank">Click here to open the game</a> in a new tab</p>
+        </div>
     </div>
 
     <script>
@@ -514,8 +557,34 @@
         }
 
         function updateButtonForGameState(gameState) {
-            // Button always says "FLAP" - no text changes needed
-            console.log('Game state updated:', gameState);
+            const buttonText = document.getElementById('buttonText');
+            const tapHint = document.getElementById('tapHint');
+            const flapButton = document.getElementById('flapButton');
+            
+            // Remove any existing state classes
+            flapButton.classList.remove('start-state', 'game-state', 'restart-state');
+            
+            switch(gameState) {
+                case 0: // SplashScreen
+                    buttonText.textContent = 'START!';
+                    tapHint.textContent = 'Tap to start the game!';
+                    flapButton.classList.add('start-state');
+                    break;
+                case 1: // GameScreen
+                    buttonText.textContent = 'FLAP!';
+                    tapHint.textContent = 'Tap to make the bird flap!';
+                    flapButton.classList.add('game-state');
+                    break;
+                case 2: // ScoreScreen
+                    buttonText.textContent = 'RESTART!';
+                    tapHint.textContent = 'Tap to restart the game!';
+                    flapButton.classList.add('restart-state');
+                    break;
+                default:
+                    buttonText.textContent = 'FLAP!';
+                    tapHint.textContent = 'Tap the button to control the game!';
+                    flapButton.classList.add('game-state');
+            }
         }
 
         // Handle page visibility change
