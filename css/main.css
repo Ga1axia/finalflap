@@ -208,6 +208,42 @@ Screen - Game
    background-repeat: no-repeat;
 }
 
+#qr-code-section
+{
+   position: absolute;
+   top: 180px;
+   left: 50%;
+   transform: translateX(-50%);
+   text-align: center;
+   z-index: 10;
+   opacity: 0;
+}
+
+#qr-code-container
+{
+   background: white;
+   padding: 10px;
+   border-radius: 10px;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+   margin-bottom: 10px;
+   display: inline-block;
+}
+
+#qr-code-image
+{
+   width: 120px;
+   height: 120px;
+   display: block;
+}
+
+#qr-code-text
+{
+   color: white;
+   font-size: 12px;
+   text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+   font-weight: bold;
+}
+
 #scoreboard
 {
    position: absolute;

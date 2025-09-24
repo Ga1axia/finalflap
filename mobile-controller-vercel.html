@@ -79,7 +79,7 @@
                 0 8px 20px rgba(0,0,0,0.3),
                 inset 0 2px 4px rgba(255,255,255,0.3),
                 inset 0 -2px 4px rgba(0,0,0,0.2);
-            transition: all 0.15s ease;
+            transition: all 0.05s ease;
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -348,10 +348,16 @@
                 e.preventDefault();
             });
             
-            // Add touch event listeners
+            // Add touch event listeners with immediate response
             flapButton.addEventListener('touchstart', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 if (!flapButton.disabled) {
+                    // Immediate visual feedback
+                    flapButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        flapButton.style.transform = 'scale(1)';
+                    }, 100);
                     sendFlapCommand();
                 }
             }, { passive: false });
@@ -360,10 +366,16 @@
                 e.preventDefault();
             }, { passive: false });
             
-            // Also keep click for desktop
+            // Also keep click for desktop with immediate response
             flapButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 if (!flapButton.disabled) {
+                    // Immediate visual feedback
+                    flapButton.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        flapButton.style.transform = 'scale(1)';
+                    }, 100);
                     sendFlapCommand();
                 }
             });
@@ -525,12 +537,12 @@
                 checkGameState();
             }
             
-            // Poll for game state every 2 seconds to update button text
+            // Poll for game state every 500ms for more responsive updates
             setInterval(() => {
                 if (isConnected) {
                     checkGameState();
                 }
-            }, 2000);
+            }, 500);
         }
 
         function checkGameState() {
@@ -561,6 +573,8 @@
             const tapHint = document.getElementById('tapHint');
             const flapButton = document.getElementById('flapButton');
             
+            console.log('Updating mobile controller for game state:', gameState);
+            
             // Remove any existing state classes
             flapButton.classList.remove('start-state', 'game-state', 'restart-state');
             
@@ -569,21 +583,25 @@
                     buttonText.textContent = 'START!';
                     tapHint.textContent = 'Tap to start the game!';
                     flapButton.classList.add('start-state');
+                    console.log('Mobile controller: Set to START mode');
                     break;
                 case 1: // GameScreen
                     buttonText.textContent = 'FLAP!';
                     tapHint.textContent = 'Tap to make the bird flap!';
                     flapButton.classList.add('game-state');
+                    console.log('Mobile controller: Set to FLAP mode');
                     break;
                 case 2: // ScoreScreen
                     buttonText.textContent = 'RESTART!';
                     tapHint.textContent = 'Tap to restart the game!';
                     flapButton.classList.add('restart-state');
+                    console.log('Mobile controller: Set to RESTART mode');
                     break;
                 default:
                     buttonText.textContent = 'FLAP!';
                     tapHint.textContent = 'Tap the button to control the game!';
                     flapButton.classList.add('game-state');
+                    console.log('Mobile controller: Set to default FLAP mode');
             }
         }
 

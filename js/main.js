@@ -13,11 +13,11 @@ var websocket = null;
 var websocketConnected = false;
 var websocketServerUrl = 'ws://localhost:8080';
 
-var gravity = 0.25;
+var gravity = 0.15;
 var velocity = 0;
 var position = 180;
 var rotation = 0;
-var jump = -4.6;
+var jump = -3.8;
 var flyArea = $("#flyarea").height();
 
 var score = 0;
@@ -106,7 +106,12 @@ function showSplash()
    $(".animated").css('-webkit-animation-play-state', 'running');
 
    //fade in the splash
-   $("#splash").transition({ opacity: 1 }, 2000, 'ease');
+   $("#splash").transition({ opacity: 1 }, 800, 'ease');
+   
+   // Show QR code after splash fades in
+   setTimeout(() => {
+      $("#qr-code-section").transition({ opacity: 1 }, 500, 'ease');
+   }, 1000);
 }
 
 function startGame()
@@ -115,7 +120,8 @@ function startGame()
 
    //fade out the splash
    $("#splash").stop();
-   $("#splash").transition({ opacity: 0 }, 500, 'ease');
+   $("#qr-code-section").transition({ opacity: 0 }, 200, 'ease');
+   $("#splash").transition({ opacity: 0 }, 200, 'ease');
 
    //update the big score
    setBigScore();
@@ -128,7 +134,7 @@ function startGame()
    }
 
    //start up our loops
-   var updaterate = 1000.0 / 60.0 ; //60 times a second
+   var updaterate = 1000.0 / 120.0 ; //120 times a second for ultra-smooth gameplay
    loopGameloop = setInterval(gameloop, updaterate);
    loopPipeloop = setInterval(updatePipes, 1400);
 
@@ -274,9 +280,10 @@ function screenClick()
 function playerJump()
 {
    velocity = jump;
-   //play jump sound
+   //play jump sound (non-blocking)
    soundJump.stop();
-   soundJump.play();
+   // Use setTimeout to prevent sound from blocking input processing
+   setTimeout(() => soundJump.play(), 0);
 }
 
 function setBigScore(erase)

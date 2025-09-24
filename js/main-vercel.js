@@ -12,11 +12,11 @@ var currentstate;
 var isConnected = false;
 var apiBaseUrl = window.location.origin;
 
-var gravity = 0.25;
+var gravity = 0.15;
 var velocity = 0;
 var position = 180;
 var rotation = 0;
-var jump = -4.6;
+var jump = -3.8;
 var flyArea = $("#flyarea").height();
 
 var score = 0;
@@ -114,7 +114,12 @@ function showSplash()
    $(".animated").css('-webkit-animation-play-state', 'running');
 
    //fade in the splash
-   $("#splash").transition({ opacity: 1 }, 2000, 'ease');
+   $("#splash").transition({ opacity: 1 }, 800, 'ease');
+   
+   // Show QR code after splash fades in
+   setTimeout(() => {
+      $("#qr-code-section").transition({ opacity: 1 }, 500, 'ease');
+   }, 1000);
 }
 
 function startGame()
@@ -124,7 +129,8 @@ function startGame()
 
    //fade out the splash
    $("#splash").stop();
-   $("#splash").transition({ opacity: 0 }, 500, 'ease');
+   $("#qr-code-section").transition({ opacity: 0 }, 200, 'ease');
+   $("#splash").transition({ opacity: 0 }, 200, 'ease');
 
    //ensure scoreboard is hidden
    $("#scoreboard").css("display", "none");
@@ -145,7 +151,7 @@ function startGame()
    console.log("Difficulty mode:", difficultyText, "(pipe height:", pipeheight + ")");
 
    //start up our loops
-   var updaterate = 1000.0 / 60.0 ; //60 times a second
+   var updaterate = 1000.0 / 120.0 ; //120 times a second for ultra-smooth gameplay
    loopGameloop = setInterval(gameloop, updaterate);
    loopPipeloop = setInterval(updatePipes, 1400);
 
@@ -278,6 +284,7 @@ else
 
 function screenClick()
 {
+   // Immediate local input handling - no API delay
    if(currentstate == states.GameScreen)
    {
       playerJump();
@@ -286,14 +293,32 @@ function screenClick()
    {
       startGame();
    }
+   
+   // Also send to API for mobile clients (non-blocking)
+   if (isConnected) {
+      fetch('/api/connect', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({
+            type: 'flap',
+            message: 'flap'
+         })
+      })
+      .catch(error => {
+         console.error('Error sending command to API:', error);
+      });
+   }
 }
 
 function playerJump()
 {
    velocity = jump;
-   //play jump sound
+   //play jump sound (non-blocking)
    soundJump.stop();
-   soundJump.play();
+   // Use setTimeout to prevent sound from blocking input processing
+   setTimeout(() => soundJump.play(), 0);
 }
 
 function setBigScore(erase)
@@ -363,7 +388,7 @@ function playerDead()
    var playerbottom = $("#player").position().top + $("#player").width(); //we use width because he'll be rotated 90 deg
    var floor = flyArea;
    var movey = Math.max(0, floor - playerbottom);
-   $("#player").transition({ y: movey + 'px', rotate: 90}, 1000, 'easeInOutCubic');
+   $("#player").transition({ y: movey + 'px', rotate: 90}, 500, 'easeInOutCubic');
 
    //it's time to change states. as of now we're considered ScoreScreen to disable left click/flying
    currentstate = states.ScoreScreen;
@@ -394,6 +419,8 @@ function playerDead()
 
 function showScore()
 {
+   console.log('showScore() called - game ended, score screen should be visible');
+   
    //unhide us
    $("#scoreboard").css("display", "block");
 
@@ -421,11 +448,11 @@ function showScore()
    //show the scoreboard
    $("#scoreboard").css({ y: '40px', opacity: 0 }); //move it down so we can slide it up
    $("#replay").css({ y: '40px', opacity: 0 });
-   $("#scoreboard").transition({ y: '0px', opacity: 1}, 600, 'ease', function() {
+   $("#scoreboard").transition({ y: '0px', opacity: 1}, 300, 'ease', function() {
       //When the animation is done, animate in the replay button and SWOOSH!
       soundSwoosh.stop();
       soundSwoosh.play();
-      $("#replay").transition({ y: '0px', opacity: 1}, 600, 'ease');
+      $("#replay").transition({ y: '0px', opacity: 1}, 300, 'ease');
 
       //also animate in the MEDAL! WOO!
       if(wonmedal)
@@ -437,9 +464,11 @@ function showScore()
 
    //make the replay button clickable
    replayclickable = true;
+   console.log('Score screen is now ready - mobile controller should show RESTART button');
 }
 
 $("#replay").click(function() {
+   console.log('Replay button clicked - restarting game');
    //make sure we can only click once
    if(!replayclickable)
       return;
@@ -455,6 +484,7 @@ $("#replay").click(function() {
       $("#scoreboard").css("display", "none");
 
       //start the game over!
+      console.log('Restarting game - going back to splash screen');
       showSplash();
    });
 });
@@ -538,12 +568,12 @@ function initializeAPIConnection() {
 }
 
 function startCommandPolling() {
-   // Poll for mobile commands every 100ms for responsive gameplay
+   // Poll for mobile commands every 16ms (60fps) for ultra-responsive gameplay
    setInterval(() => {
       if (isConnected) {
          checkForMobileCommands();
       }
-   }, 100);
+   }, 16);
 }
 
 function updateGameStateInAPI(newState) {
@@ -605,6 +635,7 @@ function checkForMobileCommands() {
                startGame();
             } else if (command.type === 'flap' && currentstate === states.ScoreScreen) {
                console.log('Mobile flap command received on score screen, restarting game');
+               console.log('Current replayclickable state:', replayclickable);
                // Simulate clicking the replay button
                $("#replay").click();
             } else {
@@ -618,26 +649,4 @@ function checkForMobileCommands() {
    });
 }
 
-// Override the existing screenClick function to also send commands to mobile
-const originalScreenClick = screenClick;
-function screenClick() {
-   // Call original function
-   originalScreenClick();
-   
-   // Also send command to API for mobile clients
-   if (isConnected) {
-      fetch('/api/connect', {
-         method: 'POST',
-         headers: {
-            'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({
-            type: 'flap',
-            message: 'flap'
-         })
-      })
-      .catch(error => {
-         console.error('Error sending command to API:', error);
-      });
-   }
-}
+// screenClick function already handles both local input and API communication above
