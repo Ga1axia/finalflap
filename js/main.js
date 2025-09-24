@@ -13,11 +13,11 @@ var websocket = null;
 var websocketConnected = false;
 var websocketServerUrl = 'ws://localhost:8080';
 
-var gravity = 0.1;
+var gravity = 0.25;
 var velocity = 0;
 var position = 180;
 var rotation = 0;
-var jump = -3.5;
+var jump = -4.6;
 var flyArea = $("#flyarea").height();
 
 var score = 0;
@@ -105,17 +105,19 @@ function showSplash()
    $(".animated").css('animation-play-state', 'running');
    $(".animated").css('-webkit-animation-play-state', 'running');
 
-   //fade in the splash
+   //fade in the splash and start image
    $("#splash").transition({ opacity: 1 }, 800, 'ease');
+   $("#start-image").css({ opacity: 1 });
 }
 
 function startGame()
 {
    currentstate = states.GameScreen;
 
-   //fade out the splash
+   //fade out the splash and start image
    $("#splash").stop();
    $("#splash").transition({ opacity: 0 }, 200, 'ease');
+   $("#start-image").transition({ opacity: 0 }, 200, 'ease');
 
    //update the big score
    setBigScore();
